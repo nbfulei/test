@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="utf-8">
+    <style type="text/css">
+        body {
+
+            margin: auto;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+        }
+    </style>
+</head>
+
+<body style="height: 100%; margin: 0">
+    <div id="container" style="height: 100%" style="width:100px; height:100px; border-radius:50%; overflow:hidden;"></div>
+    <script type="text/javascript" src="echarts.min.js"></script> //根据自己echarts包来引入
+    <script type="text/javascript">
+        var dom = document.getElementById("container");
+        var myChart = echarts.init(dom);
+        var app = {};
+        var echartJson =
+            '{"series": [{"edgeLabel": {"normal": {"formatter": "{c}","show": true}},"edgeSymbol": "circle","force": {"repulsion": 2000},"layout": "force","links": [{"value": "[同户, 同航班3次]","source": "650103198702015111","target": "857665096475783504"},{"value": "[同户]","source": "650103198702015111","target": "350555099779584311"},{"value": "[同航班1次]","source": "650103198702015111","target": "342870099576708940"},{"value": "[同航班1次]","source": "650103198702015111","target": "348050094172047786"},{"value": "[同航班1次]","source": "650103198702015111","target": "827850577979002868"},{"value": "[同航班1次]","source": "650103198702015111","target": "287550091205791400"},{"value": "[同航班1次]","source": "650103198702015111","target": "28745409957000301X"},{"value": "[同航班1次]","source": "650103198702015111","target": "347075096771048454"},{"value": "[同航班1次]","source": "650103198702015111","target": "345970096305783559"}],"roam": true,"itemStyle": {"normal": {"color": "#6495ED"}},"label": {"normal": {"show": true}},"symbol": "circle","symbolSize": 50,"type": "graph"}],"tooltip": {"show": false}}';
+        loadEcharts(echartJson);
+
+        function loadEcharts(echartJson) {
+            var option = JSON.parse(echartJson);
+            console.log(option);
+            if (option && typeof option === "object") {
+                myChart.setOption(option, true);
+            }
+        }
+        //echarts图表点击跳转
+        myChart.on('click', function (params) {
+
+            if (params.data.id) {
+                var idCard = params.data.id; // 获取被点击节点的身份证号
+                alert(idCard);
+            } else {
+                alert('您点击节点信息！');
+            }
+        });
+
+
+        var map =
+            "[{\"name\":\"张1\",\"symbolSize\":80,\"symbol\":\"http://g.hiphotos.baidu.com/zhidao/wh%3D450%2C600/sign=c94fde2ed300baa1ba794fbf72209524/00e93901213fb80e2d9e721534d12f2eb83894a0.jpg\",\"id\":\"650103198702015111\",\"itemStyle\":{\"normal\":{\"color\":\"red\"}}},{\"name\":\"张2\",\"symbolSize\":60,\"symbol\":\"http://g.hiphotos.baidu.com/zhidao/wh%3D450%2C600/sign=c94fde2ed300baa1ba794fbf72209524/00e93901213fb80e2d9e721534d12f2eb83894a0.jpg\",\"id\":\"857665096475783504\"},{\"name\":\"张3\",\"symbol\":\"http://e.hiphotos.baidu.com/zhidao/wh%3D450%2C600/sign=201992e9e5cd7b89e93932873a146e91/5d6034a85edf8db13f0dee470a23dd54564e74f6.jpg\",\"symbolSize\":60,\"id\":\"350555099779584311\"},{\"name\":\"张4\",\"symbol\":\"http://bpic.588ku.com/element_origin_min_pic/16/07/08/13577f397bbc3be.jpg\",\"symbolSize\":60,\"id\":\"342870099576708940\"},{\"name\":\"张5\",\"symbol\":\"http://bpic.588ku.com/element_origin_min_pic/01/41/46/53573d40592752b.jpg\",\"symbolSize\":60,\"id\":\"348050094172047786\"},{\"name\":\"张6\",\"symbol\":\"http://bpic.588ku.com/element_origin_min_pic/01/41/46/53573d40592752b.jpg\",\"symbolSize\":60,\"id\":\"827850577979002868\"},{\"name\":\"张7\",\"symbol\":\"http://pic.90sjimg.com/design/01/13/48/71/58ef88cd8430d.png\",\"symbolSize\":60,\"id\":\"287550091205791400\"},{\"name\":\"张8\",\"symbol\":\"http://pic.90sjimg.com/design/01/13/48/71/58ef98c404df8.png\",\"symbolSize\":60,\"id\":\"28745409957000301X\"}]";
+        pubdata(map);
+
+        function getImgData(imgSrc) {
+
+            var fun = function (resolve) {
+                const canvas = document.createElement('canvas');
+                const contex = canvas.getContext('2d');
+                const img = new Image();
+                img.crossOrigin = '';
+
+                img.onload = function () {
+                    center = {
+                        x: img.width / 2,
+                        y: img.height / 2.5
+                    }
+                    var diameter = img.width;
+                    canvas.width = diameter;
+                    canvas.height = diameter;
+                    contex.clearRect(0, 0, diameter, diameter);
+                    contex.save();
+                    contex.beginPath();
+                    radius = img.width / 2;
+                    contex.arc(radius, radius, radius, 0, 2 * Math.PI); //画出圆
+                    contex.clip(); //裁剪上面的圆形
+                    contex.drawImage(img, center.x - radius, center.y - radius, diameter, diameter, 0, 0,
+                        diameter, diameter); // 在刚刚裁剪的园上画图
+                    contex.restore(); // 还原状态
+                    resolve(canvas.toDataURL('image/png', 1))
+                }
+                img.src = imgSrc;
+            }
+
+            var promise = new Promise(fun);
+
+            return promise
+        }
+
+        function test() {
+            
+        }
+
+        function pubdata(json) {
+            var androidMap = JSON.parse(json);
+
+            var picList = [];
+            for (var i = 0; i < androidMap.length; i++) {
+                var object = androidMap[i];
+                var http = androidMap[i].symbol;
+
+                let p = getImgData(androidMap[i].symbol);
+
+                picList.push(p);
+
+
+            }
+            console.log(picList);
+            Promise.all(picList).then(function (images) {
+                for (var i = 0; i < images.length; i++) {
+                    var img = "image://" + images[i];
+                    
+                    androidMap[i].symbol = img;
+                }
+                console.log(androidMap);
+                myChart.setOption({
+                    series: [{
+                        data: androidMap
+                    }]
+                })
+            })
+
+        }
+    </script>
+</body>
+
+</html>
